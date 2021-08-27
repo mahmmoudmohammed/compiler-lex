@@ -1,0 +1,62 @@
+
+%{
+#include <stdio.h>		
+%}
+digit		[0-9]
+integer 	{digit}+
+float		{integer}"."{digit}*
+douple		{integer}"."{integer}?
+number		{integer}|{float}|{douple}
+datatype	int|float|double|string
+id		[a-z][a-z0-9]*
+op		"+"|"-"|"*"|"/"
+con		"<"|">"|"="
+space		[ \t]+
+ospace		[ \t]*
+
+exp		{ospace}{datatype}{space}{id}{ospace}("="{ospace}{integer}{ospace})?|{ospace}{id}{ospace}{op}{ospace}({number}|{id})|{ospace}{id}{ospace}|{ospace}{id}{ospace}"="{ospace}{number}{ospace}
+
+condition	{ospace}{number}{ospace}{con}{ospace}{number}{ospace}|{ospace}{id}{ospace}{con}{ospace}{id}{ospace}|{ospace}{id}{ospace}{con}{ospace}{number}{ospace}
+
+stmt		{exp};{space}?
+block		{ospace}"{"{stmt}+"}"{ospace}
+
+stmts		{stmt}+|{ospace}"if("{condition}")"{block}|{ospace}"if("{condition}")"{block}"else"{block}|{ospace}"while("{condition}")"{block}|{ospace}"do"{block}"while("{condition}");"{ospace}
+
+parameter	{ospace}{datatype}{space}{id}?{ospace}(",")?
+prototype	{ospace}{datatype}{space}"function"{space}{id}{ospace}"("{parameter}*")"{ospace}
+
+body		{ospace}"{"{stmts}+"}"{ospace}|{block}
+
+%%
+{integer}	printf( "An integer number: %s (%d)\n", yytext, atoi( yytext ) );
+{float}		printf( "A float number: %s (%g)\n", yytext);
+{exp}			printf( "This is expression: %s\n", yytext);
+{stmt}			printf( "This is Statment: %s\n", yytext);
+{block}			printf( "This is Block of code: %s\n", yytext);
+{condition}		printf( "This is condition statment: \n");
+{con}			printf( "This is condition operator: %s\n", yytext);
+{op}		printf( "An operator: %s\n", yytext );
+{space}			printf( "WHITESPACE\n");
+.			printf( "Unrecognized character: %s\n", yytext );
+
+if|else|for|function|while|return|print|{datatype}|class|true|false	printf( "A keyword: %s\n", yytext );
+
+{id}	printf( "An identifier: %s\n", yytext );
+
+{prototype}{ospace}{body}	printf( "An function: %s (%d)\n", yytext, atoi( yytext ) );
+
+{prototype}";"	printf( "An function prototype: %s (%d)\n", yytext, atoi( yytext ) );
+
+{ospace}"for"{ospace}"("{stmt}{condition}";"{exp}")"{body}		printf( "An for loop: %s (%d)\n", yytext, atoi( yytext ) );
+
+%%
+
+int yywrap(void) { 
+    return 1;
+}
+int main()
+{
+    yylex();
+    return 0;
+}
